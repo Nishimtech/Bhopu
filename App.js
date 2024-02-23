@@ -1,25 +1,8 @@
-// import React from 'react';
-
-// import { createNativeStackNavigator } from '@react-navigation/native-stack';
-// import StackNavigator from './src/navigations/StackNavigator'
-// const Stack = createNativeStackNavigator();
-// import { NavigationContainer } from '@react-navigation/native';
 
 
-// const App = () => {
-//   return (
-//     <NavigationContainer>
-//       <StackNavigator />
-//     </NavigationContainer>
-//   )
-// }
-
-
-// export default App;
 
 import { View, TextInput, Button, Text, TouchableOpacity, Modal, StyleSheet } from 'react-native'
-import AsyncStorage from '@react-native-async-storage/async-storage'
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 
 const App = () => {
   const [student, setStudent] = useState({
@@ -31,133 +14,89 @@ const App = () => {
     marks: [],
   })
 
+
   const [showMarkInputs, setShowMarkInputs] = useState(false);
-  const [monitorId, setMonitorId] = useState(null);
-  const [newMark, setNewMark] = useState({
+  const [newSubject, setNewSubject] = useState({
     subjectName: '',
     subjectCode: '',
     marks: '',
   });
+  const [subjects, setSubjects] = useState([])
 
   const [entries, setEntries] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingData, setEditingData] = useState({});
 
-  const saveData = async () => {
-    try {
-      await AsyncStorage.setItem('studentData', JSON.stringify(entries));
-      console.log('Data saved successfully');
-    } catch (error) {
-      console.error('Error saving data:', error);
-    }
-  };
-  
-
-  const handleChange = (field, value) => {
-    setStudent((data) => ({
-      ...data,
-      [field]: value,
-    }));
-  };
-
- 
 
   const handleAddMark = () => {
     setShowMarkInputs(true);
-};
+  };
 
-const editItem = (item, index) => {
+  const handleNext = () => {
+    if (subjects.length == 3) {
+      let user = editingData
+      user.marks = subjects
+      setEditingData(user)
+      setShowMarkInputs(false)
+      return
+    }
+    let temp = subjects
+    temp.push(newSubject)
+    setSubjects(temp)
+    setNewSubject({
+      subjectName: '',
+      subjectCode: '',
+      marks: '',
+    });
 
-    setEditingData({ ...item, index });
+  };
+
+  const editItem = (item, index) => {
+    setEditingData({ ...item });
+    setSubjects(item?.marks)
     setIsModalVisible(true);
   }
-  const handleAddMonitor = (isMonitor) => {
-    if (isMonitor === 'Yes') {
-      const updatedEntries = entries.map((entry) => {
-        if (entry.id === editingData.id) {
-          return { ...entry, isMonitor: 'Yes' };
-        }
-        return entry;
-      });
-      setEntries(updatedEntries);
-    }
-  };
-  
-  
 
   const handleSubmit = () => {
-    if (showMarkInputs) {
-      const updatedStudent = {
-        ...student,
-        marks: [...student.marks, newMark],
-      };
-      setEntries([...entries, updatedStudent]);
-      setStudent({
-        name: '',
-        id: '',
-        address: '',
-        currentClass: '',
-        isMonitor: '',
-        marks: [],
-      });
-      setShowMarkInputs(false);
-      setNewMark({
-        subjectName: '',
-        subjectCode: '',
-        marks: '',
-      });
-      handleAddMonitor(student.isMonitor);
-      saveData();
+
+    if (entries.length > 0) {
+
+      const updatedEntries = entries.map((entry) => ({ ...entry, isMonitor: 'No' }));
+
+      const updatedStudent = { ...student, isMonitor: 'Yes' };
+
+      setEntries([...updatedEntries, updatedStudent]);
     } else {
-      setEntries([...entries, student]);
-      setStudent({
-        name: '',
-        id: '',
-        address: '',
-        currentClass: '',
-        isMonitor: '',
-        marks: [],
-      });
-      handleAddMonitor(student.isMonitor);
-      saveData();
-
+      let temp = entries
+      temp.push(student)
+      setEntries(temp)
     }
-  };
+    setStudent({
+      name: '',
+      id: '',
+      address: '',
+      currentClass: '',
+      isMonitor: '',
 
-
-  const handleModalClose = () => {
+    });
     setIsModalVisible(false);
-
   };
 
- const handleDone = () => {
+  const handleDone = () => {
     const updatedEntries = [...entries];
     if (editingData.index >= 0) {
       updatedEntries[editingData.index] = { ...editingData };
       delete updatedEntries[editingData.index].index;
       setEntries(updatedEntries);
-      handleAddMonitor(editingData.isMonitor);
     }
     setIsModalVisible(false);
-    saveData();
   };
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const storedData = await AsyncStorage.getItem('studentData');
-        if (storedData !== null) {
-          setEntries(JSON.parse(storedData));
-          console.log('Data loaded successfully');
-        }
-      } catch (error) {
-        console.error('Error loading data:', error);
-      }
-    };
-  
-    loadData();
-  }, []);
-  
+
+  const handleDeleteSubject = (index, idx) => {
+    const newSubjects = subjects.filter(subject => subject?.length !== 1);
+    setSubjects(newSubjects);
+  };
 
   return (
     <View>
@@ -170,13 +109,7 @@ const editItem = (item, index) => {
               <Text style={styles.textEdit}>{item.address}</Text>
               <Text style={styles.textEdit}>{item.currentClass}</Text>
               <Text style={styles.textEdit}>{item.isMonitor}</Text>
-              {!showMarkInputs && item?.marks?.map((mark, idx) => (
-                <View key={idx}>
-                  <Text style={styles.textEdit}>
-                    {mark.subjectName} {mark.subjectCode} {mark.marks}
-                  </Text>
-                </View>
-              ))}
+
               <View style={styles.viewEditBtn}>
                 <Button title='Edit' onPress={() => editItem(item, index)} />
               </View>
@@ -187,154 +120,132 @@ const editItem = (item, index) => {
       <View style={{ marginBottom: 10 }}>
         <TextInput
           placeholder="Name"
-          onChangeText={(text) => handleChange('name', text)}
+          onChangeText={(text) => setStudent({ ...student, name: text })}
           value={student.name}
         />
       </View>
       <View style={{ marginBottom: 10 }}>
         <TextInput
           placeholder="ID"
-          onChangeText={(text) => handleChange('id', text)}
+          onChangeText={(text) => setStudent({ ...student, id: text })}
           value={student.id}
         />
       </View>
       <View style={{ marginBottom: 10 }}>
         <TextInput
           placeholder="Address"
-          onChangeText={(text) => handleChange('address', text)}
+          onChangeText={(text) => setStudent({ ...student, address: text })}
           value={student.address}
         />
       </View>
       <View style={{ marginBottom: 10 }}>
         <TextInput
           placeholder="Class"
-          onChangeText={(text) => handleChange('currentClass', text)}
+          onChangeText={(text) => setStudent({ ...student, currentClass: text })}
           value={student.currentClass}
         />
       </View>
       <View style={{ marginBottom: 10 }}>
         <TextInput
           placeholder="Monitor"
-          onChangeText={(text) => handleChange('isMonitor', text)}
+          onChangeText={(text) => setStudent({ ...student, isMonitor: text })}
           value={student.isMonitor}
         />
       </View>
-      {showMarkInputs && (
-        <View>
-          <TextInput
-            placeholder="Subject Name"
-            onChangeText={(text) => setNewMark((mark) => ({ ...mark, subjectName: text }))}
-            value={newMark.subjectName}
-          />
-          <TextInput
-            placeholder="Subject Code"
-            onChangeText={(text) => setNewMark((mark) => ({ ...mark, subjectCode: text }))}
-            value={newMark.subjectCode}
-          />
-          <TextInput
-            placeholder="Marks"
-            onChangeText={(text) => setNewMark((mark) => ({ ...mark, marks: text }))}
-            value={newMark.marks}
-          />
-        </View>
-      )}
-
-
       <Button title="Submit" onPress={handleSubmit} />
-      <Button title="Add Mark" onPress={handleAddMark} />
-
       <Modal visible={isModalVisible} animationType="slide">
         <View style={styles.modalContainer}>
-
           <View style={styles.entryContainer}>
 
             <TouchableOpacity style={styles.editBtn} onPress={() => setIsModalVisible(false)}>
               <Text>Close</Text>
             </TouchableOpacity>
-            <TextInput 
-            placeholder="Name"
-            style={styles.text}
+
+            <TextInput
+              placeholder="Name"
+              style={styles.text}
               value={editingData.name}
               onChangeText={(value) => {
                 setEditingData({ ...editingData, name: value })
               }}
             />
-            <TextInput 
-             placeholder="Id"
-             style={styles.text}
+            <TextInput
+              placeholder="Id"
+              style={styles.text}
               value={editingData.id}
               onChangeText={(value) => {
                 setEditingData({ ...editingData, id: value })
               }}
             />
-            <TextInput 
-            placeholder="Address"
-            style={styles.text}
+            <TextInput
+              placeholder="Address"
+              style={styles.text}
               value={editingData.address}
               onChangeText={(value) => {
                 setEditingData({ ...editingData, address: value })
               }}
             />
-            <TextInput 
-            placeholder="Class"
-            style={styles.text}
+            <TextInput
+              placeholder="Class"
+              style={styles.text}
               value={editingData.currentClass}
               onChangeText={(value) => {
                 setEditingData({ ...editingData, currentClass: value })
               }}
             />
-            <TextInput 
-            placeholder="Monitor"
-            style={styles.text}
+            <TextInput
+              placeholder="Monitor"
+              style={styles.text}
               value={editingData.isMonitor}
               onChangeText={(value) => {
                 setEditingData({ ...editingData, isMonitor: value })
               }}
             />
-
-            {editingData?.marks?.map((mark, idx) => (
-              <View key={idx}>
-                <TextInput
-                placeholder="Subject Name"
-                  style={styles.text}
-                  value={mark.subjectName}
-                  onChangeText={(value) => {
-                    const updatedMarks = [...editingData.marks];
-                    updatedMarks[idx].subjectName = value;
-                    setEditingData({ ...editingData, marks: updatedMarks });
-                  }}
-                />
-                <TextInput
-                placeholder="Subject Code"
-                  style={styles.text}
-                  value={mark.subjectCode}
-                  onChangeText={(value) => {
-                    const updatedMarks = [...editingData.marks];
-                    updatedMarks[idx].subjectCode = value;
-                    setEditingData({ ...editingData, marks: updatedMarks });
-                  }}
-                />
-                <TextInput
-                placeholder="Marks"
-                  style={styles.text}
-                  value={mark.marks}
-                  onChangeText={(value) => {
-                    const updatedMarks = [...editingData.marks];
-                    updatedMarks[idx].marks = value;
-                    setEditingData({ ...editingData, marks: updatedMarks });
-                  }}
-                />
-              </View>
-            ))}
-
           </View>
-
           <Button title="Done" onPress={handleDone} />
+          <View>
+          </View>
         </View>
+        {!editingData?.marks?.length > 0 && <Button title="Add Marks" onPress={handleAddMark} />}
+
+        {subjects?.map((subject, idx) => {
+          console.log("Subject Data:", subject);
+          return (
+            <View key={idx} style={{ flexDirection: 'row' }}>
+              <Text>Subject Name: {subject.subjectName}</Text>
+              <Text>Subject Code: {subject.subjectCode}</Text>
+              <Text>Marks: {subject.marks}</Text>
+              {/* <TouchableOpacity onPress={() => handleDeleteSubject(idx)}>  */}
+              <TouchableOpacity onPress={handleDeleteSubject}>
+                <Text>Delete</Text>
+              </TouchableOpacity>
+
+            </View>
+          );
+        })}
+        {showMarkInputs && (
+          <View>
+            <TextInput
+              placeholder="Subject Name"
+              onChangeText={(text) => setNewSubject({ ...newSubject, subjectName: text })}
+              value={newSubject.subjectName}
+            />
+            <TextInput
+              placeholder="Subject Code"
+              onChangeText={(text) => setNewSubject({ ...newSubject, subjectCode: text })}
+              value={newSubject.subjectCode}
+            />
+            <TextInput
+              placeholder="Marks"
+              onChangeText={(text) => setNewSubject({ ...newSubject, marks: text })}
+              value={newSubject.marks}
+            />
+          </View>
+        )}
+        <Button title={subjects?.length == 3 ? "Submit" : "Next"} onPress={handleNext} />
+
       </Modal>
     </View>
-
-
   )
 }
 
