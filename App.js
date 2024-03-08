@@ -345,13 +345,56 @@
 
 // export default App;
 
-import { View, Text } from 'react-native'
-import React from 'react'
+import React, { Fragment, useEffect, useState } from 'react';
+import { LogBox, Platform } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { ForgotPassword, LoginScreen, SignupScreen, SplashScreen, VerifyEmail, LandingScreen, HowToPlay, HomeScreen, LobbyFilter, LobbyDetail, CreateContest, RoasterScreen, TeamPreview, PlugNPlay, Leaderboard, H2HLeaderboard, MyTeam, MyTeamPreview, BracketFlow, BracketLobby, PrivateContest } from './Views';
 
-export default function App() {
-  return (
-    <View>
-      <Text>App</Text>
-    </View>
-  )
+
+const Stack = createNativeStackNavigator();
+
+function App() {
+    useEffect(() => {
+        LogBox.ignoreLogs(['Animated: `useNativeDriver`']);
+        LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
+    }, [])
+    
+    return (
+        <Fragment>
+            <NavigationContainer>
+                <Stack.Navigator
+                    initialRouteName='SplashScreen'
+                    screenOptions={{
+                        headerShown: false,
+                        orientation: 'portrait'
+                    }}>
+                    <Stack.Screen name="SplashScreen" component={SplashScreen} />
+                    <Stack.Screen name="LoginScreen" navigationKey="LoginScreen" component={LoginScreen} options={{ gestureEnabled: false, animation: Platform.OS == 'ios' ? 'fade' : 'none' }} />
+                    <Stack.Screen name="SignupScreen" navigationKey="SignupScreen" component={SignupScreen} options={{ gestureEnabled: false, animation: Platform.OS == 'ios' ? 'fade' : 'none' }} />
+                    <Stack.Screen name="ForgotPassword" navigationKey="ForgotPassword" component={ForgotPassword} options={{ gestureEnabled: false, animation: Platform.OS == 'ios' ? 'fade' : 'none' }} />
+                    <Stack.Screen name="VerifyEmail" navigationKey="VerifyEmail" component={VerifyEmail} options={{ gestureEnabled: false, animation: Platform.OS == 'ios' ? 'fade' : 'none' }} />
+                    <Stack.Screen name="LandingScreen" navigationKey="LandingScreen" component={LandingScreen} options={{ gestureEnabled: false, animation: Platform.OS == 'ios' ? 'fade' : 'none' }} />
+                    <Stack.Screen name="HomeScreen" navigationKey="HomeScreen" component={HomeScreen} options={{ gestureEnabled: false, animation: Platform.OS == 'ios' ? 'fade' : 'none' }} />
+                    <Stack.Screen name="HowToPlay" navigationKey="HowToPlay" component={HowToPlay}  options={{ gestureEnabled: false,animationDuration:600,animation: 'slide_from_bottom' }} />
+                    <Stack.Screen name="LobbyFilter" navigationKey="LobbyFilter" component={LobbyFilter}  options={{ gestureEnabled: false,animationDuration:600,animation: 'slide_from_bottom' }} />
+                    <Stack.Screen name="LobbyDetail" navigationKey="LobbyDetail" component={LobbyDetail}  options={{ gestureEnabled: false,animationDuration:600,animation: 'slide_from_bottom' }} />
+                    <Stack.Screen name="CreateContest" navigationKey="CreateContest" component={CreateContest}  options={{ gestureEnabled: false,animationDuration:600,animation: 'slide_from_right' }} />
+                    <Stack.Screen name="RoasterScreen" navigationKey="RoasterScreen" component={RoasterScreen}  options={{ gestureEnabled: true }} />
+                    <Stack.Screen name="PrivateContest" navigationKey="PrivateContest" component={PrivateContest}  options={{ gestureEnabled: false,animationDuration:600,animation: 'slide_from_bottom' }} />
+                    <Stack.Screen name="Leaderboard" navigationKey="Leaderboard" component={Leaderboard}  options={{ gestureEnabled: true }} />
+                    <Stack.Screen name="H2HLeaderboard" navigationKey="H2HLeaderboard" component={H2HLeaderboard}  options={{ gestureEnabled: true }} />
+                    <Stack.Screen name="TeamPreview" navigationKey="TeamPreview" component={TeamPreview}  options={{ gestureEnabled: false,animationDuration:600,animation: 'slide_from_bottom' }} />
+                    <Stack.Screen name="MyTeamPreview" navigationKey="MyTeamPreview" component={MyTeamPreview}  options={{ gestureEnabled: false,animationDuration:600,animation: 'slide_from_bottom' }} />
+                    <Stack.Screen name="MyTeam" navigationKey="MyTeam" component={MyTeam}  options={{ gestureEnabled: false,animationDuration:600,animation: 'slide_from_bottom' }} />
+                    <Stack.Screen name="PlugNPlay" navigationKey="PlugNPlay" component={PlugNPlay} options={{ gestureEnabled: false, animation: Platform.OS == 'ios' ? 'fade' : 'none' }} />                    
+                    <Stack.Screen name="BracketFlow" navigationKey="BracketFlow" component={BracketFlow} options={{ gestureEnabled: false, animation: 'slide_from_right' }} />                    
+                    <Stack.Screen name="BracketLobby" navigationKey="BracketLobby" component={BracketLobby} options={{ gestureEnabled: false, animation: 'slide_from_right' }} />                    
+                      
+                </Stack.Navigator>
+            </NavigationContainer>
+        </Fragment>
+    );
 }
+
+export default App;

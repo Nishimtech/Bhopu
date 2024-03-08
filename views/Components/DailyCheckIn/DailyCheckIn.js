@@ -24,8 +24,9 @@ const DailyCheckIn = ({ onDismiss, dismissOnTouchOutside, navigation, setEnable,
     useEffect(() => {
         GET_DAILY_STREAK_COINS()
     }, [])
+
     const handleBackButton = () => {
-       return enable;
+        return enable;
     }
     useEffect(() => {
         BackHandler.addEventListener('hardwareBackPress', handleBackButton);
