@@ -19,8 +19,8 @@ export default function Payment() {
 
         environment: "0",//<0 for Production/1 for Staging>
         userCredential: "key:7987420839",
-        
-        
+
+
     }
     const payUCheckoutProConfig = {
         merchantName: "product Info",
@@ -63,7 +63,7 @@ export default function Payment() {
     const onError = (e) => {
         console.log(e);
     }
-    
+
     const generateHash = (e) => {
         console.log(e.hashName);
         console.log(e.hashString);
@@ -85,7 +85,7 @@ export default function Payment() {
     return (
         <View>
             <Text>Payment</Text>
-            <Button title="PayU" onPress={initatePayment}/>
+            <Button title="PayU" onPress={initatePayment} />
         </View>
     )
 }

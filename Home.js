@@ -192,6 +192,9 @@ const Home = ({navigation}) => {
       </View>
       <Button title="Submit" onPress={handleSubmit} />
       <Button title ="Payment" onPress={()=> navigation.navigate('Payment')}/>
+      <Button title ="Location" onPress={()=> navigation.navigate('Location')}/>
+      <Button title ="Share" onPress={()=> navigation.navigate('ShareScreen')}/>
+      
       <Modal visible={isModalVisible} animationType="slide">
         <ScrollView>
 
